@@ -6,6 +6,7 @@ exports.up = function(knex, Promise) {
 
     table.increments()
     table.string('name', 100).notNullable()
+    table.dateTime('dob')
     table.string('gender', 1).notNullable()
     table.string('imagePath', 255)
     table.string('desc', 255)
@@ -14,4 +15,5 @@ exports.up = function(knex, Promise) {
 
 exports.down = function(knex, Promise) {
   
+  return knex.schema.dropTable('celebrity')
 }
