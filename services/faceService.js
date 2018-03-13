@@ -73,6 +73,8 @@ function identity(imagePath, groupId) {
         uidArr.push(f.uid)
       })
 
+      resolve(uidArr)
+
     }).catch((err) => {
 
       console.log(err)
