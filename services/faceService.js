@@ -8,10 +8,8 @@ const baiduConfig = config.get('baiduConfig')
 const APP_NAME = baiduConfig.APP_NAME
 const APP_KEY = baiduConfig.APP_KEY
 const APP_SECRET = baiduConfig.APP_SECRET
-const CELEBRITY_MALE_TEST_GROUPID = baiduConfig.CELEBRITY_MALE_TEST_GROUPID
-const CELEBRITY_FEMALE_TEST_GROUPID = baiduConfig.CELEBRITY_FEMALE_TEST_GROUPID
-const knex = require('../db/connection.js')
 const common = require('../util/common')
+const knex = require('../db/connection')
 
 function detect(imagePath) {
 
@@ -83,8 +81,23 @@ function identity(imagePath, groupId) {
   })
 }
 
+function getUsers() {
+
+  return new Promise(function(resolve, reject) {
+    
+    knex('celebrity').select('*').then((faces) => {
+
+      resolve(faces)
+    }).catch(function(err) {
+      console.log(err)
+      reject(err)
+    })
+  })
+}
+
 
 module.exports = {
   detect: detect,
-  identity: identity
+  identity: identity,
+  getUsers: getUsers
 }

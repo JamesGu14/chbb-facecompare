@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" href='/stylesheets/bootstrap.min.css' type='text/css'>
+    <link rel="stylesheet" href="/stylesheets/system.css" type="text/css">
+  </head>
+  <body>
+    <div style="margin: 50px">
+
+      <div style="width: 80%" class="upload_panel">
+        <h2>上传明星照片</h2>
+        <table>
+          <tr>
+            <td></td>
+            <td>图片预览</td>
+          </tr>
+          <tr>
+            <td>
+              <form name="addFaceForm" id="addFaceForm" action="">
+                <div class="form-group">
+                  <label for="personName">明星姓名</label>
+                  <input type="text" class="form-control" style="width: 320px" id="personName" name="personName" placeholder="">
+                </div>
+                <div class="form-group">
+                  <label for="personDob">生日</label>
+                  <input type="text" class="form-control" style="width: 320px" id="personDob" name="personDob" placeholder="2000-10-01">
+                </div>
+                <div class="form-group">
+                  <label for="personGender">性别</label>
+                  <input type="text" class="form-control" style="width: 320px" id="personGender" name="personGender" placeholder="M/F">
+                </div>
+                <div class="form-group">
+                  <label for="avatar">明星照片</label>
+                  <input type="file" class="form-control-file" id="avatar" name="avatar" accept="image/png, image/jpeg, image/jpg"
+                    onchange="preImg(this.id,'photo');">
+                </div>
+                <div class="form-group">
+                  <label for="avatar">明星童年照片</label>
+                  <input type="file" class="form-control-file" id="avatar2" name="avatar2" accept="image/png, image/jpeg, image/jpg"
+                    onchange="preImg(this.id,'photo2');">
+                </div>
+                <input type="submit" class="btn btn-primary" value="确认并上传">
+              </form>
+            </td>
+            <td>
+              <img id="photo" src="" width="300px" height="300px" style="display: block;" />  
+            </td>
+            <td>
+              <img id="photo2" src="" width="300px" height="300px" style="display: block;" />  
+            </td>
+          </tr>
+        </table>
+        
+      </div>
+      
+      <br><br>
+      <h5>已有明星照片</h5>
+      <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <td>明星姓名</td>
+            <td>照片</td>
+            <td>童年照</td>
+            <td>介绍</td>
+            <td>UID</td>
+          </tr>
+        </thead>
+        <tbody class="table-striped">
+          <% users.forEach(function(user) { %>
+          <tr>
+            <td><%= user.name %></td>
+            <td><img class="avatar_preview" src="<%= user.imagePath %>" alt="<%= user.name %>" /></td>
+            <td><img class="avatar_preview" src="<%= user.youngImagePath %>" alt="<%= user.name %>" /></td>
+            <td><%= user.desc %></td>
+            <td><%= user.uid %></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    
+    <script src="/javascripts/jquery-3.3.1.min.js"></script>
+    <script src="/javascripts/bootstrap.min.js"></script>
+    <script>
+      $(document).ready(function() {
+        $("form#addFaceForm").submit(function(e) {
+          e.preventDefault();    
+          var formData = new FormData(this);
+
+          $.ajax({
+              url: '/system/face',
+              type: 'POST',
+              data: formData,
+              cache: false,
+              contentType: false,
+              processData: false,
+              error:function(err){
+                console.error(err);
+              },
+              success: function (data) {
+                alert(data)
+              },
+              complete:function(){
+                  console.log("Request finished.");
+              }
+            });
+          }
+        );
+      })
+
+      function getFileUrl(sourceId) {  
+          var url;  
+          if (navigator.userAgent.indexOf("MSIE")>=1) { // IE  
+              url = document.getElementById(sourceId).value;  
+          } else if(navigator.userAgent.indexOf("Firefox")>0) { // Firefox  
+              url = window.URL.createObjectURL(document.getElementById(sourceId).files.item(0));  
+          } else if(navigator.userAgent.indexOf("Chrome")>0) { // Chrome  
+              url = window.URL.createObjectURL(document.getElementById(sourceId).files.item(0));  
+          }  
+          return url;  
+      }  
+      function preImg(sourceId, targetId) {   
+          var url = getFileUrl(sourceId);   
+          var imgPre = document.getElementById(targetId);   
+          imgPre.src = url;   
+      }   
+
+    </script>
+  </body>
+</html>
