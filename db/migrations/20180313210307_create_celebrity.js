@@ -8,8 +8,10 @@ exports.up = function(knex, Promise) {
     table.string('name', 100).notNullable()
     table.dateTime('dob')
     table.string('gender', 1).notNullable()
-    table.string('imagePath', 255)
     table.string('desc', 255)
+    table.string('imagePath', 255)
+    table.string('youngImagePath', 255)
+    table.string('uid', 100)
   })
 }
 

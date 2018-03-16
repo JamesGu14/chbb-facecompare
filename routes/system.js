@@ -8,7 +8,7 @@ const uuidv1 = require('uuid/v1')
 const fs = require('fs')
 const faceService = require('../services/faceService')
 const pinyin = require('pinyin')
-const knex = require('../mysql/connection.js')
+const knex = require('../db/connection.js')
 const config = require('config')
 const programConfig = config.get('programConfig')
 const _ = require('lodash')
@@ -18,27 +18,30 @@ router.get('/', function(req, res) {
   faceService.getUsers().then((users) => {
 
     res.render('system', {
-      'title': 'Backend System',
+      'title': '后台管理',
       'users': users
     })
   })
 })
 
-router.post('/face', upload.single('avatar'), function(req, res) {
+router.post('/face', upload.array('avatar', 2), function(req, res) {
 
   var maxSize = 2 * 1000 * 1000 // 2mb max
-  if (req.file.size > maxSize) {
-    return res.send('上传失败，文件超过2MB')
+  if (req.files.length !== 1 && req.files.length !== 2) {
+    return res.send('需要上传1-2张照片')
   }
+  
+  req.files.forEach(f => {
+    if (f.size > maxSize) {
+      return res.send('上传失败，文件超过2MB')
+    }
+  })
 
   let filename = req.file.filename
   let filepath = req.file.path
   let newname = 'img-' + uuidv1() + '.png'
   let newpath = filepath.replace(filename, newname)
   let personName = req.body.personName
-  let dob = req.body.dob
-  let gender = req.body.gender
-  let desc = req.body.gender
 
   fs.renameSync(filepath, newpath)
 
@@ -46,15 +49,15 @@ router.post('/face', upload.single('avatar'), function(req, res) {
 
     if (result.length !== 1) {
       return res.json({
-        'success': false,
+        'status': 'fail',
         'message': 'Nothing or more than one faces detected'
       })
     }
 
     if (result[0].age > programConfig.ageThreshold) {
       return res.json({
-        'success': false,
-        'message': 'Are you sure this kid is less than 20 years old?'
+        'status': 'fail',
+        'message': 'Are you sure this kid is less than 10 years old?'
       })
     }
 
@@ -66,20 +69,17 @@ router.post('/face', upload.single('avatar'), function(req, res) {
     let newUid = ''
 
     // Save to db
-    knex('celebrity')
+    knex('child')
       .returning('id')
       .insert({
-        name: personName,
-        dob: dob,
-        gender: gender,
-        desc: desc,
+        fullName: personName,
         imgPath: newpath,
         uid: ''
       })
       .then((id) => {
         
         newUid = `${uid}_${id}`
-        knex('celebrity').update({
+        knex('child').update({
           uid: newUid
         })
         .where({ id: id })
@@ -87,10 +87,6 @@ router.post('/face', upload.single('avatar'), function(req, res) {
           
           faceService.updateUser(newUid, personName, newpath).then(() => {
             res.send('上传成功')
-          })
-          .catch(err => {
-            console.log(err)
-            res.send('上传失败')
           })
         })
       })
