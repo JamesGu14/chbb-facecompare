@@ -8,6 +8,6 @@
     "CELEBRITY_FEMALE_TEST_GROUPID": "celebrity_female_test"
   },
   "programConfig": {
-    
+    "ageThreshold": 20
   }
 }
