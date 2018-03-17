@@ -8,10 +8,12 @@ const baiduConfig = config.get('baiduConfig')
 const APP_NAME = baiduConfig.APP_NAME
 const APP_KEY = baiduConfig.APP_KEY
 const APP_SECRET = baiduConfig.APP_SECRET
+const CELEBRITY_MALE_TEST_GROUPID = baiduConfig.CELEBRITY_MALE_TEST_GROUPID
+const CELEBRITY_FEMALE_TEST_GROUPID = baiduConfig.CELEBRITY_FEMALE_TEST_GROUPID
 const common = require('../util/common')
 const knex = require('../db/connection')
 
-function detect(imagePath) {
+const detect = (imagePath) => {
 
   return new Promise(function (resolve, reject) {
 
@@ -36,7 +38,7 @@ function detect(imagePath) {
   })
 }
 
-function identity(imagePath, groupId) {
+const identity = (imagePath, groupId) => {
 
   return new Promise(function (resolve, reject) {
 
@@ -81,7 +83,39 @@ function identity(imagePath, groupId) {
   })
 }
 
-function getUsers() {
+const updateUser = (uid, userInfo, imgPath, gender) => {
+
+  return new Promise(function(resolve, reject) {
+
+    if (!imgPath || imgPath.length <= 1) {
+      return resolve()
+    }
+
+    let groupId = CELEBRITY_MALE_TEST_GROUPID
+    if (gender === 'F') {
+      groupId = CELEBRITY_FEMALE_TEST_GROUPID
+    }
+
+    let faceClient = new AipFaceClient(APP_NAME, APP_KEY, APP_SECRET)
+    let stream = common.base64Encode(imgPath)
+    
+    var options = {
+      'action_type': 'replace'
+    }
+
+    faceClient.updateUser(uid, userInfo, groupId, stream, options).then(function(result) {
+      
+      console.log(`Face saves succeed - ${JSON.stringify(result)}`)
+      resolve(result)
+    }).catch(function(err) {
+      // 如果发生网络错误
+      console.log(err);
+      reject(err)
+    })
+  })
+}
+
+const getUsers = () => {
 
   return new Promise(function(resolve, reject) {
     
@@ -97,7 +131,8 @@ function getUsers() {
 
 
 module.exports = {
-  detect: detect,
-  identity: identity,
-  getUsers: getUsers
+  detect,
+  identity,
+  getUsers,
+  updateUser
 }

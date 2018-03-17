@@ -28,6 +28,6 @@ function clearDir(folderPath, noDeleteFiles) {
 }
 
 module.exports = {
-  base64Encode: base64Encode,
-  clearDir: clearDir
+  base64Encode,
+  clearDir
 }
