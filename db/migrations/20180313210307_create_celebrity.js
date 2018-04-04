@@ -6,12 +6,12 @@ exports.up = function(knex, Promise) {
 
     table.increments()
     table.string('name', 100).notNullable()
-    table.dateTime('dob')
     table.string('gender', 1).notNullable()
-    table.string('desc', 255)
-    table.string('imagePath', 255)
-    table.string('youngImagePath', 255)
-    table.string('uid', 100)
+    table.dateTime('dob')
+    table.string('job', 100)
+    table.string('nationality', 50)
+    table.string('birthplace', 50)
+    table.text('desc')
   })
 }
 
