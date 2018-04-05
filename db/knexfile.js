@@ -6,7 +6,7 @@ module.exports = {
     client: 'mysql',
     connection: {
       host: 'localhost',
-      database: 'chbb_facecompare_dev',
+      database: 'chbb_facecompare',
       user:     'root',
       password: 'root'
     },
