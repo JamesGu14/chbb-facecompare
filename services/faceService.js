@@ -22,7 +22,7 @@ const detect = (imagePath) => {
 
     var options = {
       'max_face_num': '2',
-      'face_fields': 'age,beauty,gender,qualities'
+      'face_fields': 'age,beauty,expression,faceshape,gender,glasses,landmark,race,qualities'
     }
 
     faceClient.detect(stream, options).then(function (result) {
@@ -38,7 +38,7 @@ const detect = (imagePath) => {
   })
 }
 
-const identity = (imagePath, groupId) => {
+const searchSimilar = (imagePath, groupId) => {
 
   return new Promise(function (resolve, reject) {
 
@@ -68,9 +68,11 @@ const identity = (imagePath, groupId) => {
 
       let uidArr = []
       faces.forEach(f => {
-        console.log('Detected face: ' + f.uid + '')
         console.log(`Detected face: ${f.uid}, confidence: ${f.scores[0]}`)
-        uidArr.push(f.uid)
+        uidArr.push({
+          uid: f.uid,
+          confidence: f.scores[0]
+        })
       })
 
       resolve(uidArr)
@@ -129,10 +131,29 @@ const getUsers = () => {
   })
 }
 
+const findImageByUid = (uidList) => {
+
+  return new Promise((resolve, reject) => {
+
+    knex('celebrityImage')
+      .join('celebrity', 'celebrityImage.celebrity_id', '=', 'celebrity.id')
+      .whereIn('celebrityImage.uid', _.map(uidList, 'uid'))
+      .then((rows) => {
+
+        uidList.forEach(u => {
+
+          _.assign(u, _.find(rows, { uid: u.uid }))
+        })
+        resolve(uidList)
+      })
+  })
+}
+
 
 module.exports = {
   detect,
-  identity,
+  searchSimilar,
   getUsers,
-  updateUser
+  updateUser,
+  findImageByUid
 }
